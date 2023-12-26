@@ -1,0 +1,72 @@
+Rozpoczecie;Zakonczenie;km
+Rzeszow;Rudnik nad Sanem;60
+Rudnik nad Sanem;Nisko;16
+Nisko;Jezowe;30
+Nisko;Stalowa Wola;14
+Stalowa Wola;Pysznica;20
+Nisko;Bilgoraj;56
+Stalowa Wola;Kolbuszowa;50
+Rzeszow;Lezajsk;50
+Lezajsk;Bilgoraj;60
+Rzeszow;Kolbuszowa;40
+Kolbuszowa;Tarnobrzeg;45
+Lezajsk;Rudnik nad Sanem;25
+Nisko;Janow Lubelski;35
+Janow Lubelski;Bilgoraj;40
+Bilgoraj;Zamosc;60
+Rzeszow;Przeworsk;45
+Przeworsk;Jaroslaw;25
+Jaroslaw;Lubaczow;35
+Lubaczow;Tomaszow;50
+Rzeszow;Kanczuga;35
+Kanczuga;Przeworsk;13
+Rzeszow;Dynow;37
+Dynow;Przemycl;50
+Dynow;Kanczuga;30
+Dynow;Brzozow;36
+Rzeszow;Brzozow;57
+Rzeszow;Strzyzow;35
+Strzyzow;Krosno;52
+Brzozow;Sanok;20
+Brzozow;Rymanow;28
+Sanok;Lesko;16
+Sanok;Rymanow;26
+Krosno;Rymanow;17
+Krosno;Dukla;17
+Dukla;Rymanow;20
+Lesko;Ustrzyki dolne;25
+Strzyzow;Jaslo;35
+Krosno;Jaslo;30
+Jaslo;Gorlice;35
+Jaslo;Debica;45
+Rzeszow;Sedziszow;40
+Sedziszow;Ropczyce;10
+Ropczyce;Debica;15
+Debica;Radomycl;28
+Mielec;Debica;35
+Mielec;Radomycl;25
+Mielec;Polaniec;20
+Mielec;Padew Narodowa;20
+Polaniec;Staszow;20
+Padew Narodowa;Tarnobrzeg;20
+Tarnobrzeg;Staszow;50
+Tarnobrzeg;Sandomierz;16
+Kolbuszowa;Mielec;30
+Tarnobrzeg;Stalowa Wola;30
+Sandomierz;Stalowa Wola;30
+Rzeszow;Nisko;76
+Strzyzow;Brzozow;33
+Gorlice;Krosno;58
+Przemysl;Jaroslaw;37
+Radomysl;Krakow;118
+Debica;Krakow;120
+Gorlice;Krakow;128
+Sedziszow;Strzyzow;35
+Sedziszow;Kolbuszowa;21
+Tomaszow;Warszawa;149
+Sandomierz;Warszawa;217
+Staszow;Warszawa;219
+Lezajsk;Przeworsk;35
+Staszow;Kielce;58
+Tomaszow;Kielce;62
+Polaniec;Kielce;78

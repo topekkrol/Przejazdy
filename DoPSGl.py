@@ -40,7 +40,13 @@ class PolaczenieBazy:
             self.zmiana_statusu(warunek_dniowy=warunek_dniowy)
         return dane
 
-
+    def get_values_custome(self,status="przetwarzanie_danych"): # dodać sprawdzanie dnia >= data_utworzenia i dodac sprawdzanie wartosci. Stworzenia warunku status do pobierania danych i sprawdzania ich
+        warunek_dniowy = "Status = 'testowania' AND ("+self.teskt()+")"
+        get_values_query = f"SELECT nazwa_kontrahenta,miejscowosc_dostawy,sum(ilosc_dostarczana),sum(waga) FROM dokumenty WHERE {warunek_dniowy} GROUP BY nazwa_kontrahenta,miejscowosc_dostawy;"
+        self.cur.execute(get_values_query)
+        dane = self.cur.fetchall()
+        return dane
+    
     def zmiana_statusu(self,warunek_dniowy,status="przetwarzanie_danych"):
         zmiana_statusu = f"UPDATE dokumenty SET status = '{status}' WHERE {warunek_dniowy}"
         self.cur.execute(zmiana_statusu)
@@ -62,7 +68,6 @@ class PolaczenieBazy:
         self.cur.execute(ilosc_tras_query)
         dane = self.cur.fetchall()
         return dane
-
 
     def create_script(self):
         create_script_dokumenty = ''' CREATE TABLE IF NOT EXISTS Dokumenty (
@@ -125,32 +130,32 @@ class PolaczenieBazy:
             5: ['Bilgoraj', 'Zamosc', 'Stalowa Wola', 'Mielec', 'Lezajsk'],
         }
         if nowe_miasto == 3: # zapisywania defoltowych tras
-            with open(r"Trasy-zmiana_przypisywania_do_coru\tydzien.pkl", 'wb') as file:
+            with open("tydzien.pkl", 'wb') as file:
                 pickle.dump(tydzien, file)
 
         elif len(nowe_miasto)>2: # dodawania nowej miejscowsci
             try:
-                with open(r"Trasy-zmiana_przypisywania_do_coru\tydzien.pkl", 'rb') as plik:
+                with open("tydzien.pkl", 'rb') as plik:
                     x = pickle.load(plik)
                     miasta_do_transportu = x[int(trasa)]
                     miasta_do_transportu.append(nowe_miasto)
                     x[int(trasa)] = miasta_do_transportu
 
-                    with open(r"Trasy-zmiana_przypisywania_do_coru\tydzien.pkl", 'wb') as file:
+                    with open("tydzien.pkl", 'wb') as file:
                         pickle.dump(x, file)
             except:
                 print("Niepoprawne dane, proszę spróbować jeszcze raz.")
 
         else: # wyswietlania miast do transporti
-            with open(r"Trasy-zmiana_przypisywania_do_coru\tydzien.pkl", 'rb') as plik:
+            with open("tydzien.pkl", 'rb') as plik:
                 x = pickle.load(plik)
                 return x
 
     def teskt(self):
         d = datetime.now().date()
-        # dzis = int(d.strftime('%w'))
+        dzis = int(d.strftime('%w'))
 
-        dzis = 3  # test
+        #dzis = 3  # test
         tydzien = self.tydzien()
         zwrot = ''
         for dni in tydzien[dzis]:
@@ -189,13 +194,15 @@ class PolaczenieBazy:
         self.cur.execute(copy_value_test)
         self.conn.commit()
 
-    def dodanie_faktury(self,nazwa_kontrahenta,symbol_dokumentu,data_utworzenia,planowana_data_dostawy, ilosc_dostarczana,waga,wartosc_dokumentu,miejscowosc_dostawy):
+    def dodanie_faktury(self,nazwa_kontrahenta,symbol_dokumentu,data_utworzenia,planowana_data_dostawy, ilosc_dostarczana,waga,wartosc_dokumentu,miejscowosc_dostawy,status="planowana"):
         # status odrazu ustawiamy na 'planowana'
         if planowana_data_dostawy == None:
-            add_value = f"INSERT INTO dokumenty (nazwa_kontrahenta, symbol_dokumentu, data_utworzenia, ilosc_dostarczana, waga, wartosc_dokumentu, miejscowosc_dostawy, status) VALUES ('{nazwa_kontrahenta}', '{symbol_dokumentu}', '{data_utworzenia}', {ilosc_dostarczana}, {waga}, {wartosc_dokumentu}, '{miejscowosc_dostawy}', 'planowana');"
+            add_value = f"INSERT INTO dokumenty (nazwa_kontrahenta, symbol_dokumentu, data_utworzenia, ilosc_dostarczana, waga, wartosc_dokumentu, miejscowosc_dostawy, status) VALUES ('{nazwa_kontrahenta}', '{symbol_dokumentu}', '{data_utworzenia}', {ilosc_dostarczana}, {waga}, {wartosc_dokumentu}, '{miejscowosc_dostawy}', '{status}');"
         else:
-            add_value = f"INSERT INTO dokumenty (nazwa_kontrahenta, symbol_dokumentu, data_utworzenia, planowana_data_dostawy, ilosc_dostarczana, waga, wartosc_dokumentu, miejscowosc_dostawy, status) VALUES ('{nazwa_kontrahenta}', '{symbol_dokumentu}', '{data_utworzenia}', '{planowana_data_dostawy}', {ilosc_dostarczana}, {waga}, {wartosc_dokumentu}, '{miejscowosc_dostawy}', 'planowana');"
+            add_value = f"INSERT INTO dokumenty (nazwa_kontrahenta, symbol_dokumentu, data_utworzenia, planowana_data_dostawy, ilosc_dostarczana, waga, wartosc_dokumentu, miejscowosc_dostawy, status) VALUES ('{nazwa_kontrahenta}', '{symbol_dokumentu}', '{data_utworzenia}', '{planowana_data_dostawy}', {ilosc_dostarczana}, {waga}, {wartosc_dokumentu}, '{miejscowosc_dostawy}', '{status}');"
+
         try:
+            print(208,add_value)
             self.cur.execute(add_value)
             self.conn.commit()
 
@@ -305,6 +312,21 @@ class PolaczenieBazy:
             # lista_generat.append((id_dokumentu,random.choice(string.ascii_letters).upper(), random.choice(x),palety, palety*random.randint(500,1500)))
             self.dodanie_faktury(nazwa_kontrahenta=random.choice(string.ascii_letters).upper(),symbol_dokumentu=id_dokumentu,data_utworzenia=datetime.now().date(),planowana_data_dostawy=None,ilosc_dostarczana=str(palety),waga=str(palety*random.randint(500,1500)),wartosc_dokumentu='997',miejscowosc_dostawy=random.choice(x))
         # print(lista_generat)
+            
+    def generowanie_towaru_custome(self):
+        d = datetime.now().date()
+        dzis = int(d.strftime('%w'))
+
+        #dzis = 3  # test
+        x = self.tydzien()[dzis]
+  
+        for _ in range(len(x)*2):
+            palety = random.randint(1,10)
+            id_dokumentu = random.choices(string.ascii_letters, k=5)
+            id_dokumentu = "".join(id_dokumentu).lower()
+            # lista_generat.append((id_dokumentu,random.choice(string.ascii_letters).upper(), random.choice(x),palety, palety*random.randint(500,1500)))
+            self.dodanie_faktury(nazwa_kontrahenta=random.choice(string.ascii_letters).upper(),symbol_dokumentu=id_dokumentu,data_utworzenia=datetime.now().date(),planowana_data_dostawy=None,ilosc_dostarczana=str(palety),waga=str(palety*random.randint(500,1500)),wartosc_dokumentu='997',miejscowosc_dostawy=random.choice(x),status="testowania")
+        # print(lista_generat)
 
     def ile_tras_nowe_trasy(self):
         ilosc_tras_query = r"SELECT MAX(nr_zlecenia::float) AS max_value FROM nowe_trasy WHERE nr_zlecenia ~ E'^\\d+(\\.\\d+)?$'"  
@@ -320,12 +342,23 @@ class PolaczenieBazy:
             for rrr in reader:
                 #wyslanie danych
                 tekst_dodania = str(rrr).replace("[","(").replace("]",")")
-                zapytanie = f'''INSERT INTO nowe_trasy( nr_zlecenia ,data_dostawy ,miejscowosci ,firma ,ilosc_dostarczana ,samochod ,koszt ,km, model_dostawy ) 
-                VALUES 
-                {tekst_dodania};'''
+                zapytanie = f'''INSERT INTO nowe_trasy( nr_zlecenia ,data_dostawy ,miejscowosci ,firma ,ilosc_dostarczana ,samochod ,koszt ,km, model_dostawy ) VALUES {tekst_dodania};'''
                 self.cur.execute(zapytanie)
                 self.conn.commit()
 
                 #zmiana statusu dokumenty
                 zmiana_statusu_warunek_planowana = f"miejscowosc_dostawy = '{rrr[2]}' AND nazwa_kontrahenta = '{rrr[3]}' AND status = 'planowana';"
                 self.zmiana_statusu(warunek_dniowy=zmiana_statusu_warunek_planowana,status="test"+rrr[8])
+
+    def test(self):
+        puste_wiersze = "SELECT * from koszty_samochodow;"  # uzyskanie wierszow z pustym wierszem data wykonania
+        self.cur.execute(puste_wiersze)  # wykananie statmentu
+        wiersze_do_wyjasnienia = self.cur.fetchall()  # uzyskanei km
+        for idk in wiersze_do_wyjasnienia:
+            print(idk)
+
+    def usuniecie_testow(self):
+        testy_do_usuniecia = "delete from dokumenty where status = 'testowania';"
+        self.cur.execute(testy_do_usuniecia)
+        self.conn.commit()
+        print('usunieto')

@@ -39,7 +39,7 @@ def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
     # lista8 = [] #Lista gotowych tras
     x = 0
 
-    with open('Trasy-zmiana_przypisywania_do_coru\Zeszyt1.csv') as csv_file:
+    with open('Zeszyt1.csv') as csv_file:
         if glebokosc >= 1:
             csv_reader = csv.DictReader(csv_file, delimiter=';')
             for row in csv_reader:
@@ -84,7 +84,7 @@ def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
 
     # ## Koniec pierwszego etapu ##
     if glebokosc >= 2:
-        with open('Trasy-zmiana_przypisywania_do_coru\Zeszyt1.csv') as csv_file:
+        with open('Zeszyt1.csv') as csv_file:
             csv_reader_1 = csv.DictReader(csv_file, delimiter=';')
             for row in csv_reader_1:
                for miasta in lista6:
@@ -137,7 +137,7 @@ def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
 
     ## Koniec drugiego etapu ##
     if glebokosc >= 3:
-        with open('Trasy-zmiana_przypisywania_do_coru\Zeszyt1.csv') as csv_file:
+        with open('Zeszyt1.csv') as csv_file:
             csv_reader_1 = csv.DictReader(csv_file, delimiter=';')
             for row in csv_reader_1:
                for miasta in lista4:
@@ -191,7 +191,7 @@ def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
 
     ## Koniec trzeciego etapu ##
     if glebokosc >= 4:
-        with open('Trasy-zmiana_przypisywania_do_coru\Zeszyt1.csv') as csv_file:
+        with open('Zeszyt1.csv') as csv_file:
             csv_reader_1 = csv.DictReader(csv_file, delimiter=';')
             for row in csv_reader_1:
                for miasta in lista7:

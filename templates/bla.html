@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataFrames Display</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    {% for df_key, df_value in dataframes.items() %}
+        <!--<h2>{{ df_key }}</h2>-->
+        <table>
+            <thead>
+                <tr>
+                    <th>Samochod</th>
+                    <th>Key</th>
+                    {% for col in df_value.columns %}
+                        <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <td rowspan="100">{{ df_key}}</td>
+                {% for index, row in df_value.iterrows() %}
+                    <tr>
+
+                        <td>{{ index }}</td>
+                        {% for col in df_value.columns %}
+                            <td>{{ row[col] }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</body>
+</html>

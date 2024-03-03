@@ -101,12 +101,9 @@ def ObliczanieKosztow(lista,km):
 
     return koszt
 
-
 def Kalkulator_od_góry (km, waga, palety, lista_palet=None):
     if lista_palet is None:
         lista_palet = []
-
-
 
     if waga < 0:
         lista_palet.remove(1200)
@@ -141,14 +138,12 @@ def Kalkulator_od_góry (km, waga, palety, lista_palet=None):
         else:
             lista_palet.append(1200)
             return Kalkulator_od_góry(km, waga - 1200, palety - 1, lista_palet=lista_palet)
-
-
     return (0, [])
 
 def Kalulator_500 (waga, palety):
     lista_palet = []
     if waga/palety < 500:
-        for _ in range(palety):
+        for _ in range(int(palety)):
             lista_palet.append(500)
     return lista_palet
 

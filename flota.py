@@ -68,7 +68,7 @@ class Samochod:
     @classmethod
     def odczytaj_z_pliku_wszystkie(cls):
         try:
-            with open(r'Trasy-zmiana_przypisywania_do_coru\flota.pkl', 'rb') as plik:
+            with open('flota.pkl', 'rb') as plik:
                 cls.lista_samochodow = pickle.load(plik)
         except FileNotFoundError:
             print("Nie znaleziono pliku z zapisanymi danymi.")
@@ -104,6 +104,7 @@ class Samochod:
     def max_palety(cls, x=0):
         sorted_list = sorted(cls.lista_samochodow, key=lambda s: int(s.ladowosc_palety), reverse=True)
         if x < len(sorted_list):
+            print()
             return sorted_list[x].nr_rejestracyjny, sorted_list[x].ladowosc_palety
         else:
             return None
@@ -112,7 +113,7 @@ class Samochod:
     def dane_auta(cls,nr_rej):
         for nr_reje in cls.lista_samochodow:
             if nr_reje.nr_rejestracyjny == nr_rej:
-                return (nr_reje.ladowosc_palety)
+                return nr_reje.ladowosc_palety
 
     @staticmethod
     def count_objects():

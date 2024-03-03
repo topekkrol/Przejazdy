@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataFrames Display</title>
+    <style>
+		.tabela_transportowa {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+	   table { 
+            /* margin-left: auto; 
+            margin-right: auto; */
+            font-size: 10px; 
+            height: 100%; 
+            table-layout: fixed; 
+        }
+        table.style1 {
+            border-collapse: collapse;
+            width: 70%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        } 
+        /* Stylizacja podstawowej tabeli */
+        .basic-table {
+            border: 1px solid black;
+            /*border-collapse: collapse; */
+            width: 80%;
+            
+        }
+        .basic-table th, .basic-table td {
+            border: 1px solid black;
+            /*padding: 10%;*/
+            text-align: center;
+        }
+        .basic-table th {
+            background-color: #f2f2f2;
+        }
+        .basic-table tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        .container {
+  			display: flex;
+  			flex-wrap: wrap;
+  			flex-direction: column;
+  			justify-content: flex-end;
+  			align-items: auto;
+  			align-content: start
+		}
+		
+		.umiejscowienie_srodka {
+		  display: flex;
+		  flex-wrap: wrap;
+		  flex-direction: column;
+		  justify-content: start;
+		  align-items: baseline;
+		  align-content: center;
+		  text-align: center
+		}
+		.tabela_transportowa {
+		  display: flex;
+		  justify-content: flex-end; 
+		  align-items: baseline;
+		  align-content: flex-start;
+		  max-width: 100%;
+		  text-align: center
+		}
+		
+		.table_spedycyjna {
+		  display: flex;
+		  justify-content: flex-start; 
+		  align-items: baseline;
+		  align-content: flex-end;
+		  max-width: 100%;
+		  text-align: center
+		}
+
+    </style>
+</head>
+<body>
+	<div class="umiejscowienie_srodka">
+    	<h1> Towar do zawiezienia</h1>
+    		{{towar_wyswietlenie | safe}}
+	</div>
+
+	{% if transportwe_informacje|length != 0 %}
+		<div class="tabela_transportowa">
+
+			<div class="table-container">
+				<h2 style="display: block;">Transport własny</h2>
+				<table class="basic-table">
+				{% for df_key, df_value in transportwe_informacje.items() %}
+
+					<thead>
+						{% if loop.first %} {# Sprawdza, czy to pierwszy dataframe #}
+						<tr>
+							<th>Samochod</th>
+
+								{% for col in df_value.columns %}
+									<th>{{ col }}</th>
+								{% endfor %}
+							{% endif %}
+						</tr>
+						</thead>
+						<tbody>
+							<td rowspan="100">{{ df_key}}</td>
+							{% for index, row in df_value.iterrows() %}
+								<tr>
+									{% for col in df_value.columns %}
+										<td>{{ row[col] }}</td>
+									{% endfor %}
+								</tr>
+							{% endfor %}
+						</tbody>
+				{% endfor %}
+				</table>
+			</div>
+		{% endif %}
+
+	{% if spedycyjne_informacje|length != 0 %}
+		<div class="table_spedycyjna">
+			<h2 style="display: block;">Spedycja</h2>
+			<table class="basic-table">
+				<thead>
+					<tr>
+						{% for col in spedycyjne_informacje.columns %}
+							<th>{{ col }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for index, row in spedycyjne_informacje.iterrows() %}
+						<tr>
+							{% for col in spedycyjne_informacje.columns %}
+								<td>{{ row[col] }}</td>
+							{% endfor %}
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	{% endif %}
+	
+	</div>        
+	
+</body>
+</html>

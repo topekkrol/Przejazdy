@@ -24,9 +24,9 @@ while __name__ =='__main__':
         case 1:
             break
         case 2:
-            import main
+            import nowy_main_light
             if ilosc_wykonanych_podzialow >0:
-                importlib.reload(main)
+                importlib.reload(nowy_main_light)
             ilosc_wykonanych_podzialow += 1
         case 3:
             Samochod.odczytaj_z_pliku_wszystkie()

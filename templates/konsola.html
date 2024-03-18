@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App</title>
+    <title>Transport Bartosz Zgorski</title>
     <style>
         .container {
             width: 1%;
@@ -39,8 +39,20 @@
             <!-- Dodaj więcej opcji tutaj -->
         </select>
     </form>
+    <button type="button" id="search">Wybierz</button>
 
     <script>
+        document.getElementById('search').addEventListener('click', function() {
+        // Get the value from the select element
+        var selectedOption = document.getElementById('choice').value;
+
+        // Optionally, you can perform further actions with the selected value
+        console.log("Wybrana opcja: " + selectedOption);
+
+        // Submit the form
+        document.getElementById('myForm').submit();
+    });
+
         window.onload = function() {
             const select = document.getElementById("choice");
 

@@ -35,7 +35,6 @@ def dodanie_miejscowosci(miejscowosc):
 
             lista_przejazdow = []
             for index, row in dane.iterrows():
-                # print(row['lat'],row['lon'])
                 polaczenie = (row['miasto'],miejscowosc,int(get_distance(row['lat'],row['lon'],miejscowosc_zapytanie[0],miejscowosc_zapytanie[1])))
                 lista_przejazdow.append(polaczenie)
 

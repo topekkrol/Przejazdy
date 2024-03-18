@@ -2,7 +2,6 @@
 import pandas as pd
 import os
 import operator
-import traceback
 
 from datetime import datetime, date,timedelta
 from Kalkulator_Raben import kalkulator_spedycja
@@ -10,7 +9,7 @@ from DoPSGl import PolaczenieBazy
 from flota import Samochod
 from WyszukiwarkaMakaronowa import wyszukanie
 from flask import render_template, request
-from bla2 import sprawdzanie_czy_z_spedycji_cos_sie_zmiesci_w_transporcie_wlasnym, compare_dictionaries, round_column_values_in_dict,zaokraglenie_df,filtr_najwiekszych_miejscowosci
+from trzeci_etap import sprawdzanie_czy_z_spedycji_cos_sie_zmiesci_w_transporcie_wlasnym, compare_dictionaries, round_column_values_in_dict,filtr_najwiekszych_miejscowosci, usuwanie_podkreslenia
 from __main__ import app
 
 def rozwiazywania_rownania_a(b,plik):
@@ -215,11 +214,16 @@ def model_deflacyjny_dla_stworzonych_tras(nosnik_informacji_transportowych,koszt
     for przewiezienia in nosnik_informacji_transportowych:
         #odczytywanie miejscowosc dostawy
         for index, miejsce_docelowe in nosnik_informacji_transportowych[przewiezienia].iterrows():
+            # warunek sprawdza czy to nie jest postoj
             if miejsce_docelowe['nazwa_kontrahenta']=='Postoj':
                 continue
-            
+
             #uzyskiwanie listy miejscowosci posrednich wraz z usunieciem miejscowosci dla ktorej bedziemy sprawdzali oplacalnosc
             lista_miejsc_dostarczania = list(nosnik_informacji_transportowych[przewiezienia]['miejscowosc_dostawy'])
+            #warunek sprawdza czy miasto nie zostalo juz przeniesione
+            if not miejsce_docelowe['miejscowosc_dostawy'] in lista_miejsc_dostarczania:
+                continue
+            
             #usuwanie duplikatow z listy
             lista_miejsc_dostarczania = list(set(lista_miejsc_dostarczania))
             lista_miejsc_dostarczania.remove(miejsce_docelowe['miejscowosc_dostawy'])
@@ -255,9 +259,8 @@ def model_deflacyjny_dla_stworzonych_tras(nosnik_informacji_transportowych,koszt
                                     (nosnik_informacji_transportowych[przewiezienia]['miejscowosc_dostawy'] == miejsce_docelowe['miejscowosc_dostawy']) & \
                                     (nosnik_informacji_transportowych[przewiezienia]['ilosc_dostarczana'] == miejsce_docelowe['ilosc_dostarczana']) & \
                                     (nosnik_informacji_transportowych[przewiezienia]['waga'] == miejsce_docelowe['waga'])
-                    print(350,warunek_usuniecia)
+
                     nosnik_informacji_transportowych[przewiezienia] = nosnik_informacji_transportowych[przewiezienia].drop(nosnik_informacji_transportowych[przewiezienia][warunek_usuniecia].index) # usunięcie wiersza
-                    print(352,miejsce_docelowe)
                     testing_df = pd.DataFrame([miejsce_docelowe], columns=nosnik_informacji_spedycyjnej.columns)
                     #ustalenie nowych kosztow dostawy poniewaz poprzednie byly obliczone sumarycznego towaru dla miejscowosci
                     koszt_spedycji_z_miasta_glownego = kalkulator_spedycja(km=km_z_miastem_glownym,waga=miejsce_docelowe['waga'],palety=miejsce_docelowe['ilosc_dostarczana'])
@@ -275,7 +278,7 @@ def sprawdzenie_czy_nie_taniej_bedzie_przeniesc_pomiedzy_przejazdami(transportow
         dane_o_aucie = Samochod.dane_auta(nr_rej=dejtafrejmy)
         ile_palet_na_aucie = int(transportowy_df[dejtafrejmy]['ilosc_dostarczana'].sum())
         ile_miejsca_na_aucie = dane_o_aucie - ile_palet_na_aucie
-        print(276,ile_miejsca_na_aucie,ile_palet_na_aucie, dane_o_aucie,dejtafrejmy)
+
         if ile_miejsca_na_aucie == 0:
             continue
         for dejtafrejmy_do_rozlozenia in transportowy_df:
@@ -294,8 +297,6 @@ def sprawdzenie_czy_nie_taniej_bedzie_przeniesc_pomiedzy_przejazdami(transportow
                                         (transportowy_df[dejtafrejmy_do_rozlozenia]['ilosc_dostarczana']== row['ilosc_dostarczana']) & \
                                         (transportowy_df[dejtafrejmy_do_rozlozenia]['waga'] == row['waga'])
 
-                    print('do tego',transportowy_df[dejtafrejmy])
-                    print('mozna przenisc to',row['miejscowosc_dostawy'])
                     dataframe_z_usunietym = transportowy_df[dejtafrejmy_do_rozlozenia].drop(transportowy_df[dejtafrejmy_do_rozlozenia][warunek_usuniecia].index)  # usuniecie z df spedycyjnego  
 
                     dodanie_drobnicy = pd.DataFrame([row],columns=transportowy_df[dejtafrejmy_do_rozlozenia].columns)
@@ -318,7 +319,6 @@ def trasy_do_realizacji():
     #lacza.generowanie_towaru_custome() # tworzenie dokumentow aby moc zaprezentowac dzialanie programu
     dane = lacza.get_values_custome(status='testowania')
     df = pd.DataFrame(dane, columns=['nazwa_kontrahenta','miejscowosc_dostawy','ilosc_dostarczana','waga'])
-    #print(df)
     df_do_wyswietlenia = df.copy()
     koszty_pokonania_km = 7
     koszty = przypisywanie_wartosci_bezposredniego_polaczenia(df)
@@ -329,7 +329,6 @@ def trasy_do_realizacji():
     pierwotne_koszty_dostawy = koszty_dostawy
 
     dostawa_boz , dostawa_spedycja = wlasny_transport_vs_spedycja(koszty_dostawy,koszty) # uzyskujemy podział na biblioteke i liste zawierajace odpowiednio lista rzeczy do transportu przez boz badz   spedycje
-    print(327,dostawa_boz, dostawa_spedycja)
     spedycja_df =pd.DataFrame(columns=['nazwa_kontrahenta', 'miejscowosc_dostawy', 'ilosc_dostarczana', 'waga'])
 
     pierwszy_rekord_do_uruchamienia_tworzenia_df = 0
@@ -351,8 +350,6 @@ def trasy_do_realizacji():
         koszty_dostawy = koszty_spedycji(df,koszty_dostawy)
         dostawa_boz, dostawa_spedycja = wlasny_transport_vs_spedycja(koszty_dostawy, koszty)
 
-
-    print(350,df,spedycja_df,sep='\n')
     while int(df['ilosc_dostarczana'].sum()) > Samochod.wyswietl_wage_i_palety()[1]: # sprawdzenie czy potrzeby transportowe nie są większe niż możliwości
 
         miejsce = (max(dostawa_boz.items(), key=operator.itemgetter(1))[0])
@@ -395,11 +392,9 @@ def trasy_do_realizacji():
                         # spedycja_df = spedycja_df.append(testing) # wysylka do spedycji
                         testing_df = pd.DataFrame([testing], columns=spedycja_df.columns)
                         spedycja_df = pd.concat([testing_df, spedycja_df], ignore_index=True) # wysylka do spedycji
-                        print(396,type(testing),testing)
                         testing['ilosc_dostarczana'] = ilosc_do_doladowania#  ustalenie wartosci dla df transportowego
                         testing['waga'] = nowa_waga_transport
 
-                        print(398,type(testing),testing)
                     elif ilosc_na_series <= df['ilosc_dostarczana'].sum(): # w przypadku kiedy do jednego klienta nie jest wiecej towaru niz wolnego miejsca na samochodzie
 
                         spedycja_df = spedycja_df.drop(spedycja_df[warunek_usuniecia].index) # usunięcie wiersza
@@ -456,13 +451,12 @@ def trasy_do_realizacji():
     #transport_df.sort_values(by=['km', 'miejscowosc_dostawy'],ascending=True,inplace=True)
     transport_df.reset_index(drop=True, inplace=True)
     trasy={}
-    print(450,transport_df,spedycja_df)
+
     for index , row in transport_df.iterrows(): # przypisanie drobnicy do transportów#
         transport_df.reset_index(drop=True, inplace=True)
 
         try:
             for przejazdy in trasy:
-                print(575,przejazdy,trasy,row,sep='\n')
                 postoje = []
                 #warunek_usuniecia = (transport_df['nazwa_kontrahenta'] == row.iloc[0]) & (transport_df['miejscowosc_dostawy'] == row.iloc[1])
                 #test stworzenia nowego warunku usuniecia
@@ -478,14 +472,11 @@ def trasy_do_realizacji():
 
                 ciezarowka = Samochod.dane_auta(nr_rej=przejazdy)
                 procent_obciazenia = (ciezarowka - ilosc_palet_na_zleceniu)/row.iloc[2]
-                print(458,procent_obciazenia)
                 #pierwszy warunek sprawdza czy procent obciążenia nie jest równy 0, drugi czy towar nie został wcześniej dodany do innego zlecenia
                 #jest to pokrecona logika
-                print(458.1, transport_df[['nazwa_kontrahenta','miejscowosc_dostawy','ilosc_dostarczana']].isin({'nazwa_kontrahenta':[row['nazwa_kontrahenta']],'miejscowosc_dostawy':[row['miejscowosc_dostawy']],'ilosc_dostarczana':  [row['ilosc_dostarczana']]}).any().all())
                 if not transport_df[['nazwa_kontrahenta','miejscowosc_dostawy','ilosc_dostarczana']].isin({'nazwa_kontrahenta':[row['nazwa_kontrahenta']],'miejscowosc_dostawy':[row['miejscowosc_dostawy']],'ilosc_dostarczana':  [row['ilosc_dostarczana']]}).any().all()\
                     or \
                         procent_obciazenia == 0:
-                    print(491)
                     continue
 
                 else: # tutaj wpadaja wszystkie przypadki mające coś do zawiezienia
@@ -495,26 +486,23 @@ def trasy_do_realizacji():
                     lista_postoi = trasy[przejazdy]['miejscowosc_dostawy'].tolist()
                     lista_postoi = list(dict.fromkeys(lista_postoi)) # usuniecie duplikatów z listy postoi
                     #if trasy[przejazdy]['miejscowosc_dostawy'].isin([row.iloc[1]])[0].any() or len(trasy) >= Samochod.count_objects(): # pierwszy warunek sprawdza czy wyszukiwana miejscowosc jest w   postojach, drugi czy ilość użytych samochodow nie jest rowna max. Trzeci warunek sprawdza czy analizowany przypadek trasy jest ostatnią trasą.
-                    #print(501,type(trasy[przejazdy]['miejscowosc_dostawy'].isin([row['miejscowosc_dostawy']])),list(trasy[przejazdy]['miejscowosc_dostawy'].isin([row['miejscowosc_dostawy']]))[0],sep='\n')
                     if list(trasy[przejazdy]['miejscowosc_dostawy'].isin([row['miejscowosc_dostawy']]))[0]: # pierwszy warunek sprawdza czy wyszukiwana miejscowosc jest w   postojach.    
-                        print('wpadlo tutaj')
                         transport_df = transport_df.drop(transport_df[warunek_usuniecia].index)
                         row.update(pd.Series([row['ilosc_dostarczana']*procent_obciazenia],index=['ilosc_dostarczana']))
                         row.update(pd.Series([row['waga']*procent_obciazenia],index=['waga']))
                         dodanie = pd.DataFrame([row])
                         przejazd_0 = pd.concat([dodanie, trasy[przejazdy]], ignore_index=True)
                         trasy[przejazdy] = przejazd_0  # doddanie przejazdu do wszystkich tras
-                        print(490)
+
                         if procent_obciazenia < 1:
-                            print('i tutaj dalej')
                             row.update(
     pd.Series([(row['ilosc_dostarczana'] / procent_obciazenia) - row['ilosc_dostarczana']],index=['ilosc_dostarczana']))  # ustawienowej nowej ilosci dostarczanych palet
                             row.update(
                                pd.Series([(row['waga'] / procent_obciazenia) - row['waga']],index=['waga']))  # obliczanie nowej wagi, bardzo teoretyczna operacja, teoretycznie do wyjebania
                             new_record = pd.DataFrame([row])
                             transport_df = pd.concat([transport_df,new_record], ignore_index=True)
+                            
                             if row['km']*koszty_pokonania_km < kalkulator_spedycja(row['km'],row['waga'],row['ilosc_dostarczana'])[0]:
-                                print('od dawna chciałes to naprawić :)')
                                 #warunek_usuniecia = (transport_df['nazwa_kontrahenta'] == row.iloc[0]) & (transport_df['miejscowosc_dostawy'] == row.iloc[1])
                                 #test stworzenia nowego warunku usuniecia
                                 warunek_usuniecia = (transport_df['nazwa_kontrahenta'] == row['nazwa_kontrahenta']) & \
@@ -531,7 +519,6 @@ def trasy_do_realizacji():
                             break
 
                     else:
-                        print("tutaj wpada?")
                         for p in lista_postoi: # wczytywanie wszyskich miejsc w postojach, poprzednia wersja trasy[przejazdy]['Postoje']
 
                             polaczenia_z_przystankiem =  wyszukanie(row.iloc[1],p)
@@ -542,9 +529,8 @@ def trasy_do_realizacji():
                                 polaczenia_z_przystankiem_km = 999 # nierealna wartosc
                             
                             if polaczenia_z_przystankiem_km < row.iloc[4]: # sprawdzenie czy km z polaczenia z ktorymz punktow sa mniejsze niz bezposrednie polaczenie z Rzeszowa.
-                                print(548,transport_df)
                                 transport_df = transport_df.drop(transport_df[warunek_usuniecia].index) # usuniecie z df
-                                print(550,transport_df)
+
                                 try:
                                     postoje.append(cos_klikam['Przystanek'])
 
@@ -563,7 +549,6 @@ def trasy_do_realizacji():
                                 row.update(pd.Series([row['waga']*procent_obciazenia],index=['waga']))
                                 dodanie_drobnicy = pd.DataFrame([row],columns=transport_df.columns)
 
-                                print(567)
                                 if len(postoje)>0: # dodanie przystankow do dataframu aby przy analizowaniu nastepnych przypadkow dostawy byly pelne informacje
                                     for miasta_przystankowe in postoje:
                                         if len(miasta_przystankowe) > 0:
@@ -587,7 +572,6 @@ def trasy_do_realizacji():
                             
                         #pierwszy warunek sprawdza czy nie jest to ostatnia możliwa do stworzenia trasa, a inne nie warunki nie stwarzaja mozliwosc utworzenia trasy. Drugi warunek sprawdza czy towar  nie zostal juz dodany do innego zlecenia.
                         if len(trasy) == list(trasy).index(przejazdy)+1 and transport_df[['nazwa_kontrahenta','miejscowosc_dostawy','ilosc_dostarczana']].isin({'nazwa_kontrahenta':[row.iloc[0]],'miejscowosc_dostawy':[row.iloc[1]],  'ilosc_dostarczana':[row.iloc[2]]}).any().all():
-                                print('tutaj dziala?')
                                 warunek_usuniecia = (transport_df['nazwa_kontrahenta'] == row['nazwa_kontrahenta']) & \
                                     (transport_df['miejscowosc_dostawy'] == row['miejscowosc_dostawy']) & \
                                     (transport_df['ilosc_dostarczana'] == row['ilosc_dostarczana']) & \
@@ -612,12 +596,10 @@ def trasy_do_realizacji():
                     raise Exception
 
         except RuntimeError as r:
-            print('tutaj dalej zre?')
             continue
 
         except Exception as e:
-            print(688,e.args,e,row)
-            traceback.print_exc()
+            
             if len(trasy) == Samochod.count_objects():
                 if (transport_df[['nazwa_kontrahenta','miejscowosc_dostawy','ilosc_dostarczana']].isin({'nazwa_kontrahenta':[row.iloc[0]],'miejscowosc_dostawy':[row.iloc[1]],'ilosc_dostarczana':[row. iloc[2]]}).any().all()) == False: # po odrzuceniu resztki z dolodawanie nie da sie na jej podstawie stworzyc transportu ( maksymalan liczba samochodow ) reszta muszi wrocic do  transportu
                     row_df = pd.DataFrame([row])
@@ -661,8 +643,6 @@ def trasy_do_realizacji():
     for przejazd in trasy: #resetowanie indeksu w trasie
         trasy[przejazd].reset_index(drop=True, inplace=True)
 
-    print(613,trasy,spedycja_df)
-    print(614)
     if len(transport_df) > 0: #przenoszenie pozostałych towarow z przeznaczonych do transportu, do wysyłką spedycja.
         spedycja_df = pd.concat([transport_df,spedycja_df])
 
@@ -694,42 +674,41 @@ def trasy_do_realizacji():
 
     # ostatnie wirowanie
     bezpiecznik = 0
+    
     while True:
-        #sprawdzenie aby pętla while nie leciała w nieskończoność 
+        #sprawdzenie aby pętla while nie leciała w nieskończoność
+        print(677,trasy,spedycja_df) 
         trasy0 = trasy.copy()
         spedycja0 = spedycja_df.copy()
         trasy, spedycja_df = sprawdzanie_czy_z_spedycji_cos_sie_zmiesci_w_transporcie_wlasnym(trasy_do_przyjcia = trasy, spedycje_do_sprawdzenia = spedycja_df, ile_kosztuje_km = koszty_pokonania_km)
-        #print(650,trasy,spedycja_df)
+        print(684,trasy,spedycja_df) 
         spedycja_df, trasy = model_deflacyjny_dla_stworzonych_tras(nosnik_informacji_transportowych = trasy, nosnik_informacji_spedycyjnej = spedycja_df, koszt_km_w_funkcji = koszty_pokonania_km)
-        #print(652,trasy,spedycja_df)
+        print(686,trasy,spedycja_df) 
         trasy = sprawdzenie_czy_nie_taniej_bedzie_przeniesc_pomiedzy_przejazdami(trasy)
-        #print(664,trasy)
+        print(688,trasy,spedycja_df) 
         if compare_dictionaries(trasy0,trasy) and spedycja0.equals(spedycja_df):
-            #print("koniec")
             break
+        
         elif bezpiecznik > 5:
             break
+        
         else:
             bezpiecznik += 1
 
+    #usuwanie postoi, wag i resetowanie indexow
     for przejazd in trasy:
         trasy[przejazd] = trasy[przejazd][trasy[przejazd]['nazwa_kontrahenta'] != 'Postoj']
+        trasy[przejazd] = trasy[przejazd].drop(columns=['waga'])
         trasy[przejazd].reset_index(drop=True, inplace=True)
 
     trasy = round_column_values_in_dict(trasy)
-    spedycja_df = zaokraglenie_df(spedycja_df,column_name='waga')
+    #usuniecie kolumny waga
+    spedycja_df = spedycja_df.drop(columns=['waga'])
     #lacza.usuniecie_testow()
-    return render_template('trasy-flex-aaa.html', towar_wyswietlenie=df_do_wyswietlenia.to_html(),transportwe_informacje=trasy,spedycyjne_informacje=spedycja_df)
 
+    spedycja_df = usuwanie_podkreslenia(spedycja_df)
 
+    for odczytanie_dla_usuiecia_podkreslen in trasy:
+        trasy[odczytanie_dla_usuiecia_podkreslen] = usuwanie_podkreslenia(trasy[odczytanie_dla_usuiecia_podkreslen])
 
-    @app.route('/trasy_do_realizacji')
-    def trasy_do_realizacji():
-        return render_template('trasy0.html', towar_wyswietlenie=df_do_wyswietlenia.to_html(),towar_realizowany_wlasnym_taborem=dictionary_to_html_dla_transportu_wlasnego(trasy), towar_realizowany_spedycja=dictionary_to_html_dla_spedycja_2(spedycja_df), dlugosc_spedycji = len(spedycja_df), dlugosc_transportow = len(trasy)) 
-        
-    
-    @app.route("/handle_input_trasy", methods=["POST"])
-    def handle_input_trasy():
-        choice_trasy = request.form["choice_trasy0"]
-        #przygotwanie_przesylki_do_bazy_danych(dict_tabor=trasy, df_spedycja=spedycja_df, decyzja = choice_trasy)
-        return "tu bedzie cos w stylu :zlecenie wykonane, przycisk powrotu do glownej strony"
+    return render_template('trasy-flex-aaa.html', towar_wyswietlenie=df_do_wyswietlenia,transportwe_informacje=trasy,spedycyjne_informacje=spedycja_df)

@@ -42,7 +42,6 @@ def get_distance(lat1,lon1,lat2,lon2):
 
   headers = {"Content-Type": "application/json"}
 
-  print(requests.post(url,payload,headers,query))
   response = requests.post(url, json=payload, headers=headers, params=query)
 
   data = response.json()

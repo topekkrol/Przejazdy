@@ -8,26 +8,15 @@ def sortowanie(sortowanie_lista):
             if y > trasy['km']:
                 y = trasy['km']
 
-        # print(lista)
-
         for trasy in sortowanie_lista:
             if trasy['km'] == y:
                 lista8.append(trasy)
+        
         return (lista8)
     except:
         return None
 
 def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
-    # zaczynamy = input('Gdzie rozpoczynami szefie? ')
-    # # przystanki = input('Jakies przystanki?').lower()
-    # konczymy = input('Gdzie kończymy szefie? ')
-
-
-
-
-    # zaczynamy = "Rzeszow"
-    # konczymy = "Staszow"
-
     lista = []  #Lista gotowych tras#
     lista1 = {}  #Lista miast pośrednich między etapem 1-2#
     lista2 = {}  #Formularz dodawania trasy#
@@ -236,20 +225,6 @@ def wyszukanie(zaczynamy,konczymy,glebokosc=4,obowiazkowy_przystanek=''):
 
 
     return sortowanie(lista)
-    # try:
-    #     y = 999
-    #     for trasy in lista:
-    #         if y > trasy['km']:
-    #             y = trasy['km']
-    #
-    #     # print(lista)
-    #
-    #     for trasy in lista:
-    #         if trasy['km'] == y:
-    #             lista8.append(trasy)
-    #     return (lista8)
-    # except:
-    #     return None
 
 
 

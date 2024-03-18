@@ -22,6 +22,7 @@ class PolaczenieBazy:
                 password=self.pwd,
                 port=self.port_id)
             self.cur = self.conn.cursor()
+        
         except Exception as error:
             print(error)
 
@@ -113,9 +114,9 @@ class PolaczenieBazy:
                                          opis VARCHAR(500),
                                          oznaczenie_stale REAL)''' # Oznaczenie stale przekazuje informacje o wielokrotnosci przy ktorej zostal wykonany poprzedni przeglad
 
-        #self.cur.execute(create_script_dokumenty)
-        #self.cur.execute(create_script_trasy)
-        #self.cur.execute(create_script_koszty_samochodow)
+        self.cur.execute(create_script_dokumenty)
+        self.cur.execute(create_script_trasy)
+        self.cur.execute(create_script_koszty_samochodow)
         self.cur.execute(create_script_nowe_trasy)
         self.conn.commit()
 
@@ -154,7 +155,8 @@ class PolaczenieBazy:
     def teskt(self):
         d = datetime.now().date()
         dzis = int(d.strftime('%w'))
-
+        if dzis == 0 or dzis ==6:
+            dzis = 1
         #dzis = 3  # test
         tydzien = self.tydzien()
         zwrot = ''
@@ -202,7 +204,6 @@ class PolaczenieBazy:
             add_value = f"INSERT INTO dokumenty (nazwa_kontrahenta, symbol_dokumentu, data_utworzenia, planowana_data_dostawy, ilosc_dostarczana, waga, wartosc_dokumentu, miejscowosc_dostawy, status) VALUES ('{nazwa_kontrahenta}', '{symbol_dokumentu}', '{data_utworzenia}', '{planowana_data_dostawy}', {ilosc_dostarczana}, {waga}, {wartosc_dokumentu}, '{miejscowosc_dostawy}', '{status}');"
 
         try:
-            print(208,add_value)
             self.cur.execute(add_value)
             self.conn.commit()
 
@@ -236,9 +237,7 @@ class PolaczenieBazy:
         dane_samochodu = self.cur.fetchall()
 
         if len(dane_samochodu) == 0: # sprawdzenie czy obiekt znajduje sie w bazie
-            # if dane_samochodu[0][4] == 0.0: # sprawdzenie czy usluga juz nie zostala wykonana
-                # print(f'\nKonieczne jest wykonanie {opis} w samochodzie {nr_rejestracyjny}.\nPowinno być wykonane {dane_samochodu[0][2]}. Jeżeli zostało już wykonane porszę dodać pozycje kosztową.\n')
-        # else:
+
             new_row = f"INSERT INTO koszty_samochodow (samochod, planowana_data_wykonania, koszt, opis,oznaczenie_stale) VALUES ('{nr_rejestracyjny}', '{d}', 0, '{opis}', {wielekrotnosc});"
             self.cur.execute(new_row)
             self.conn.commit()
@@ -250,13 +249,6 @@ class PolaczenieBazy:
         self.cur.execute(update_kosztow_transportu)
         self.conn.commit()
 
-    def wyswietl_tabele_kosztow(self): # wyswietlanie tabeli kosztow
-        wyswietlenie ='SELECT * FROM koszty_samochodow ORDER BY id'
-        self.cur.execute(wyswietlenie)
-        dane_kosztow = self.cur.fetchall()
-        print('id, samochod,planowana_data_wykonania,koszt,opis,oznaczenie_stale')
-        for koszty in dane_kosztow:
-            print(koszty)
 
     def dodanie_do_tabeli_kosztow(self,nr_rejestracyjny,usluga,koszt): # dodawanie nowych pozycji do bazy danych transportów
         d1 = datetime.now().date() # uzyskanie daty
@@ -300,22 +292,26 @@ class PolaczenieBazy:
 
     def generowanie_towaru(self):
         d = datetime.now().date()
-        # dzis = int(d.strftime('%w'))
+        dzis = int(d.strftime('%w'))
+        if dzis == 0 or dzis ==6:
+            dzis = 1
 
-        dzis = 3  # test
+        #dzis = 3  # test
         x = self.tydzien()[dzis]
-        lista_generat = []
+
         for _ in range(len(x)):
             palety = random.randint(1,10)
             id_dokumentu = random.choices(string.ascii_letters, k=5)
             id_dokumentu = "".join(id_dokumentu).lower()
-            # lista_generat.append((id_dokumentu,random.choice(string.ascii_letters).upper(), random.choice(x),palety, palety*random.randint(500,1500)))
             self.dodanie_faktury(nazwa_kontrahenta=random.choice(string.ascii_letters).upper(),symbol_dokumentu=id_dokumentu,data_utworzenia=datetime.now().date(),planowana_data_dostawy=None,ilosc_dostarczana=str(palety),waga=str(palety*random.randint(500,1500)),wartosc_dokumentu='997',miejscowosc_dostawy=random.choice(x))
-        # print(lista_generat)
+
             
     def generowanie_towaru_custome(self):
         d = datetime.now().date()
         dzis = int(d.strftime('%w'))
+
+        if dzis == 0 or dzis ==6:
+            dzis = 1
 
         #dzis = 3  # test
         x = self.tydzien()[dzis]
@@ -326,7 +322,8 @@ class PolaczenieBazy:
             id_dokumentu = "".join(id_dokumentu).lower()
             # lista_generat.append((id_dokumentu,random.choice(string.ascii_letters).upper(), random.choice(x),palety, palety*random.randint(500,1500)))
             self.dodanie_faktury(nazwa_kontrahenta=random.choice(string.ascii_letters).upper(),symbol_dokumentu=id_dokumentu,data_utworzenia=datetime.now().date(),planowana_data_dostawy=None,ilosc_dostarczana=str(palety),waga=str(palety*random.randint(500,1500)),wartosc_dokumentu='997',miejscowosc_dostawy=random.choice(x),status="testowania")
-        # print(lista_generat)
+
+
 
     def ile_tras_nowe_trasy(self):
         ilosc_tras_query = r"SELECT MAX(nr_zlecenia::float) AS max_value FROM nowe_trasy WHERE nr_zlecenia ~ E'^\\d+(\\.\\d+)?$'"  
@@ -346,19 +343,12 @@ class PolaczenieBazy:
                 self.cur.execute(zapytanie)
                 self.conn.commit()
 
-                #zmiana statusu dokumenty
+                #zmiśana statusu dokumenty
                 zmiana_statusu_warunek_planowana = f"miejscowosc_dostawy = '{rrr[2]}' AND nazwa_kontrahenta = '{rrr[3]}' AND status = 'planowana';"
                 self.zmiana_statusu(warunek_dniowy=zmiana_statusu_warunek_planowana,status="test"+rrr[8])
 
-    def test(self):
-        puste_wiersze = "SELECT * from koszty_samochodow;"  # uzyskanie wierszow z pustym wierszem data wykonania
-        self.cur.execute(puste_wiersze)  # wykananie statmentu
-        wiersze_do_wyjasnienia = self.cur.fetchall()  # uzyskanei km
-        for idk in wiersze_do_wyjasnienia:
-            print(idk)
 
     def usuniecie_testow(self):
         testy_do_usuniecia = "delete from dokumenty where status = 'testowania';"
         self.cur.execute(testy_do_usuniecia)
         self.conn.commit()
-        print('usunieto')

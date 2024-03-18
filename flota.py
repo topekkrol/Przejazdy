@@ -30,17 +30,6 @@ class Samochod:
         self.przejechane_km += km
         self.zapisz_do_pliku()
 
-    def wyswietl_info(self):
-        print("Marka:", self.marka)
-        print("Ladowosc palet:", self.ladowosc_palety)
-        print("Ladownosc waga:", self.ladownosc_waga)
-        print("Numer rejestracyjny:", self.nr_rejestracyjny)
-        try:
-            print("Przebieg:", self.przejechane_km+PolaczenieBazy().km_samochod(self.nr_rejestracyjny))
-        except:
-            print("Przebieg:", self.przejechane_km)
-        print("Data przeglądu:", self.data_przegladu.strftime("%d"),self.data_przegladu.strftime("%B"),'\n')
-
     @classmethod
     def wyswietl_wszystkie(cls):
         cls.odczytaj_z_pliku_wszystkie()
@@ -104,7 +93,7 @@ class Samochod:
     def max_palety(cls, x=0):
         sorted_list = sorted(cls.lista_samochodow, key=lambda s: int(s.ladowosc_palety), reverse=True)
         if x < len(sorted_list):
-            print()
+
             return sorted_list[x].nr_rejestracyjny, sorted_list[x].ladowosc_palety
         else:
             return None
@@ -135,21 +124,3 @@ class Samochod:
 
                     except:
                         continue
-
-    @classmethod
-    def alert_przeglady(cls):
-        cls.odczytaj_z_pliku_wszystkie()
-
-        for samochody in cls.lista_samochodow: # sprawdzenie przegladu samochodu
-            data_przegladu = datetime.date(day=int(samochody.data_przegladu.strftime("%d")), month=int(samochody.data_przegladu.strftime("%m")), year=int(datetime.datetime.now().strftime("%Y")))
-            data_dzis = datetime.date(day=int(datetime.datetime.now().strftime("%d")) , month=int(datetime.datetime.now().strftime("%m")), year=int(datetime.datetime.now().strftime("%Y")))
-            # print("flota 140",date(samochody.data_przegladu.strftime("%d"), datetime.datetime.now().strftime("%d"), samochody.data_przegladu.strftime("%m"), datetime.datetime.now().strftime("%m"))
-            if data_dzis > data_przegladu:
-                PolaczenieBazy().dodanie_tabeli_samochod(nr_rejestracyjny=samochody.nr_rejestracyjny,wielekrotnosc=0,opis="przeglad",data=samochody.data_przegladu.date())
-
-        dane_print = PolaczenieBazy().nierozliczone_pozycje_kosztowe_transport()
-        if len(dane_print) > 0: # wyswietlanie nierozliczonych pozycji w transporcie
-            print("Konieczne jest wykonanie seriwsu:")
-            print("nr rejestracyjny","data","usługa")
-            for _ in dane_print:
-                print(str(_[1:3]).replace("(","").replace(")","").replace(", datetime.date"," ").replace(","," -"),_[-2])

@@ -2,10 +2,11 @@ import pandas as pd
 import csv
 import requests
 import unicodedata
+from hasla import api_key_openweather
 
-from OdleglosciApi import get_distance
-def get_location(miasto):
-    url = f'http://api.openweathermap.org/geo/1.0/direct?q={miasto}&limit=5&appid=b0e5051003b7ba1a269ffb5101b421ff'
+from odleglosci_api import get_distance
+def znalezenie_lokalizacji(miasto):
+    url = f'http://api.openweathermap.org/geo/1.0/direct?q={miasto}&limit={api_key_openweather}'
 
     ddane = requests.get(url)
 
@@ -27,7 +28,7 @@ def dodanie_miejscowosci(miejscowosc):
 
 
     if not miejscowosc in dane.values:
-        miejscowosc_zapytanie = get_location(miejscowosc)
+        miejscowosc_zapytanie = znalezenie_lokalizacji(miejscowosc)
 
         with open(filename, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)

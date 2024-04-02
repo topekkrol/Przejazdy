@@ -23,7 +23,7 @@ koszty_spedycji = {
 dodatek_paliwowy = 0.15
 dodatek_drogowy = 0.0846
 
-def przypadek_beznadziejmy(palety,waga):
+def przypadek_beznadziejny(palety,waga):
     srednia_waga = (waga/palety)
     if srednia_waga <= 500:
         srednia_waga = 500
@@ -37,10 +37,10 @@ def przypadek_beznadziejmy(palety,waga):
         palcie.append(srednia_waga)
 
     return palcie
-def Kalkulator_od_dolu(km, waga, palety, lista_palet=None):
+
+def kalkulator_od_dolu(km, waga, palety, lista_palet=None):
     if lista_palet is None:
         lista_palet = []
-
 
     if waga < 0:
         lista_palet.remove(1200)
@@ -57,7 +57,7 @@ def Kalkulator_od_dolu(km, waga, palety, lista_palet=None):
         elif waga <= 12:
             waga = 1200
         elif waga > 12:
-            return Kalkulator_od_dolu(km, waga * 100, palety=2, lista_palet=lista_palet)
+            return kalkulator_od_dolu(km, waga * 100, palety=2, lista_palet=lista_palet)
 
         if waga > 100:
             lista_palet.append(waga)
@@ -65,27 +65,27 @@ def Kalkulator_od_dolu(km, waga, palety, lista_palet=None):
     else:
         if waga % 500 == 0 or waga % 500 == 800 or waga % 500 == 1200:
             lista_palet.append(500)
-            return Kalkulator_od_dolu(km, waga - 500, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_dolu(km, waga - 500, palety - 1, lista_palet=lista_palet)
         elif waga % 800 == 0 or waga % 800 == 500 or waga % 800 == 1200:
             lista_palet.append(800)
-            return Kalkulator_od_dolu(km, waga - 800, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_dolu(km, waga - 800, palety - 1, lista_palet=lista_palet)
         elif waga % 1200 == 0 or waga % 1200 == 500 or waga % 1200 == 800:
             lista_palet.append(1200)
-            return Kalkulator_od_dolu(km, waga - 1200, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_dolu(km, waga - 1200, palety - 1, lista_palet=lista_palet)
         else:
             if waga < 800:
                 lista_palet.append(500)
-                return Kalkulator_od_dolu(km, waga - 500, palety - 1, lista_palet=lista_palet)
+                return kalkulator_od_dolu(km, waga - 500, palety - 1, lista_palet=lista_palet)
             elif waga < 1200:
                 lista_palet.append(800)
-                return Kalkulator_od_dolu(km, waga - 800, palety - 1, lista_palet=lista_palet)
+                return kalkulator_od_dolu(km, waga - 800, palety - 1, lista_palet=lista_palet)
             else:
                 lista_palet.append(1200)
-                return Kalkulator_od_dolu(km, waga - 1200, palety - 1, lista_palet=lista_palet)
+                return kalkulator_od_dolu(km, waga - 1200, palety - 1, lista_palet=lista_palet)
 
     return (0, [])
 
-def ObliczanieKosztow(lista,km):
+def obliczanie_kosztow(lista,km):
     koszt = 0
     if km %100 == 0:
         km = km
@@ -101,7 +101,7 @@ def ObliczanieKosztow(lista,km):
 
     return koszt
 
-def Kalkulator_od_góry (km, waga, palety, lista_palet=None):
+def kalkulator_od_góry (km, waga, palety, lista_palet=None):
     if lista_palet is None:
         lista_palet = []
 
@@ -120,7 +120,7 @@ def Kalkulator_od_góry (km, waga, palety, lista_palet=None):
         elif waga <= 12:
             waga = 1200
         elif waga > 12:
-            return Kalkulator_od_góry(km, waga * 100, palety=2, lista_palet=lista_palet)
+            return kalkulator_od_góry(km, waga * 100, palety=2, lista_palet=lista_palet)
 
         if waga > 100:
             lista_palet.append(waga)
@@ -128,19 +128,19 @@ def Kalkulator_od_góry (km, waga, palety, lista_palet=None):
     else:
         if waga % 1200 == 0 or waga % 1200 == 500 or waga % 1200 == 800:
             lista_palet.append(1200)
-            return Kalkulator_od_góry(km, waga - 1200, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_góry(km, waga - 1200, palety - 1, lista_palet=lista_palet)
         elif (waga % 800 == 0 or waga % 800 == 500 or waga % 800 == 1200) and waga < 2400:
             lista_palet.append(800)
-            return Kalkulator_od_góry(km, waga - 800, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_góry(km, waga - 800, palety - 1, lista_palet=lista_palet)
         elif (waga % 500 == 0 or waga % 500 == 800 or waga % 500 == 1200) and waga < 1500:
             lista_palet.append(500)
-            return Kalkulator_od_góry(km, waga - 500, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_góry(km, waga - 500, palety - 1, lista_palet=lista_palet)
         else:
             lista_palet.append(1200)
-            return Kalkulator_od_góry(km, waga - 1200, palety - 1, lista_palet=lista_palet)
+            return kalkulator_od_góry(km, waga - 1200, palety - 1, lista_palet=lista_palet)
     return (0, [])
 
-def Kalulator_500 (waga, palety):
+def kalulator_500 (waga, palety):
     lista_palet = []
     if waga/palety < 500:
         for _ in range(int(palety)):
@@ -158,37 +158,36 @@ def redukcja(lista_redukcji,ile_zredukowac):
                 lista_redukcji.remove(800)
                 lista_redukcji.append(500)
                 ile_zredukowac += 300
-
     return lista_redukcji
 
 def kalkulator_spedycja(km, waga, palety=1):
     try:
-        gora = Kalkulator_od_góry(km,waga,palety)
+        gora = kalkulator_od_góry(km,waga,palety)
     except:
-        gora = przypadek_beznadziejmy(palety=palety,waga=waga)
+        gora = przypadek_beznadziejny(palety=palety,waga=waga)
     try:
-        dol = Kalkulator_od_dolu(km,waga,palety)
+        dol = kalkulator_od_dolu(km,waga,palety)
     except:
-        dol = przypadek_beznadziejmy(palety=palety, waga=waga)
+        dol = przypadek_beznadziejny(palety=palety, waga=waga)
 
-    palety500 = Kalulator_500(waga,palety)
+    palety500 = kalulator_500(waga,palety)
     roznica_gora = waga - sum(gora)
     gora = redukcja(gora,roznica_gora)
     if len(gora) > 0:
-        koszt_gora = ObliczanieKosztow(gora, km)
+        koszt_gora = obliczanie_kosztow(gora, km)
     else:
         koszt_gora = 694201312
     roznice_dol = waga - sum(dol)
     dol = redukcja(dol,roznice_dol)
     if len(dol) > 0:
-        koszt_dol = ObliczanieKosztow(dol, km)
+        koszt_dol = obliczanie_kosztow(dol, km)
     else:
         koszt_dol = 694201312
 
     roznica_500 = waga - sum(palety500)
     palety500  = redukcja(palety500,roznica_500)
     if len(palety500) > 0:
-        koszt_500 = ObliczanieKosztow(palety500, km)
+        koszt_500 = obliczanie_kosztow(palety500, km)
     else:
         koszt_500 = 694201312
 

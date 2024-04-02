@@ -5,38 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataFrames Display</title>
     <style>
-		.tabela_transportowa {
-			display: flex;
-			justify-content: space-between;
-		}
-		
+	   .basic-table {
+            border: 1px solid black;
+            /*border-collapse: collapse; */
+            width: 80%; 
+        }
+		.centered-container {
+        display: flex; /* Użyjemy flexbox do wyśrodkowania */
+        justify-content: center; /* Wyśrodkowanie w poziomie */
+        align-items: center; /* Wyśrodkowanie w pionie */
+    	}
+       h1 {
+    	    display: block;
+    	    text-align: center;
+    	}
 	   table { 
-            /* margin-left: auto; 
-            margin-right: auto; */
-            font-size: 10px; 
-            height: 100%; 
+            
+            font-size: 10px;  
             table-layout: fixed; 
         }
-        table.style1 {
-            border-collapse: collapse;
-            width: 70%;
-        }
-
-        th, td {
+		
+       th, td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
         }
-
         th {
-            background-color: #f2f2f2;
+            background-color: #d8eeee;
         } 
+		
         /* Stylizacja podstawowej tabeli */
+		
         .basic-table {
             border: 1px solid black;
             /*border-collapse: collapse; */
-            width: 80%;
-            
+            width: 80%; 
         }
         .basic-table th, .basic-table td {
             border: 1px solid black;
@@ -44,21 +47,11 @@
             text-align: center;
         }
         .basic-table th {
-            background-color: #f2f2f2;
+            background-color: #62b6cb;
         }
         .basic-table tr:nth-child(even) {
-            background-color: #dddddd;
+            background-color: #bee9e8;
         }
-
-        .container {
-  			display: flex;
-  			flex-wrap: wrap;
-  			flex-direction: column;
-  			justify-content: flex-end;
-  			align-items: auto;
-  			align-content: start
-		}
-		
 		.umiejscowienie_srodka {
 		  display: flex;
 		  flex-wrap: wrap;
@@ -66,69 +59,135 @@
 		  justify-content: start;
 		  align-items: baseline;
 		  align-content: center;
-		  text-align: center
+		  text-align: center;
+		  width: 700px;
+		  margin: auto; 
+		}
+		.tabelki {
+		    display: flex;
+		    justify-content: space-around;
+		    margin-left: 5%; 
+		    margin-right: 5%; 
+		    gap: 10%;
+			text-align: center;
 		}
 		.tabela_transportowa {
-		  display: flex;
-		  justify-content: flex-end; 
-		  align-items: baseline;
-		  align-content: flex-start;
+		  /*align-items: baseline;
+		  align-content: flex-start;*/
 		  max-width: 100%;
-		  text-align: center
+		  text-align: center;
+		  justify-content: center;
 		}
-		
 		.table_spedycyjna {
-		  display: flex;
-		  justify-content: flex-start; 
-		  align-items: baseline;
-		  align-content: flex-end;
+		  /*align-items: baseline;
+		  align-content: flex-start;*/
 		  max-width: 100%;
-		  text-align: center
+		  text-align: center;
+		  justify-content: center;
 		}
+		.container {
+	      max-width: 100%;
+	      margin: 0;
+	      padding: 1px;
+	      background-color: #d8eeee;
+	  }
+		@media screen and (max-width: 999px) {
+		    .tabelki {
+		        flex-direction: column;
+				border: 10px;
+				margin: auto;
+		    }
+		    .tabelki > * {
+		        margin-bottom: 10%; 
+		    }
+		    .tabelki > *:last-child {
+		        margin-bottom: 0; 
+		    }
+		    .tabelki th,
+		    .tabelki td {
+		        width: 100%; /* Zmieniamy szerokość na 100%, aby zajęły całą szerokość kontenera */
+		    }
+			.basic-table {
+            width: 500px; 
+			margin: 0 auto;
 
+        	}
+			.umiejscowienie_srodka{
+            width: 500px;
+			margin-bottom: 10%; 
+			text-align: center;
+        	}
+		}
     </style>
 </head>
-<body>
-	<div class="umiejscowienie_srodka">
-    	<h1> Towar do zawiezienia</h1>
-    		{{towar_wyswietlenie | safe}}
+<header>
+	<div class="container">
+		<a href="/">
+			<img height="100px", width="100px" src="/static/domek.png" alt="Powrót do strony głównej" style="background-color: transparent;">
+		</a>
 	</div>
-
+</header>
+<body>
+	<div class="centered-container">
+		<h1>Towar do zawiezienia</h1>
+	</div>
+	<div class="umiejscowienie_srodka">
+		<table class="basic-table">
+			<thead>
+				<tr>
+					{% for col in towar_wyswietlenie.columns %}
+						<th>{{ col }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for index, row in towar_wyswietlenie.iterrows() %}
+					<tr>
+						{% for col in towar_wyswietlenie.columns %}
+							<td>{{ row[col] }}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<!-- 
+	---
+	-->
+	<div class="tabelki">
 	{% if transportwe_informacje|length != 0 %}
 		<div class="tabela_transportowa">
+			<h2 style="display: block;">Transport własny</h2>
+			<table class="basic-table">
+			{% for df_key, df_value in transportwe_informacje.items() %}
 
-			<div class="table-container">
-				<h2 style="display: block;">Transport własny</h2>
-				<table class="basic-table">
-				{% for df_key, df_value in transportwe_informacje.items() %}
+				<thead>
+					{% if loop.first %} {# Sprawdza, czy to pierwszy dataframe #}
+					<tr>
+						<th>Samochod</th>
 
-					<thead>
-						{% if loop.first %} {# Sprawdza, czy to pierwszy dataframe #}
-						<tr>
-							<th>Samochod</th>
-
-								{% for col in df_value.columns %}
-									<th>{{ col }}</th>
-								{% endfor %}
-							{% endif %}
-						</tr>
-						</thead>
-						<tbody>
-							<td rowspan="100">{{ df_key}}</td>
-							{% for index, row in df_value.iterrows() %}
-								<tr>
-									{% for col in df_value.columns %}
-										<td>{{ row[col] }}</td>
-									{% endfor %}
-								</tr>
+							{% for col in df_value.columns %}
+								<th>{{ col }}</th>
 							{% endfor %}
-						</tbody>
-				{% endfor %}
-				</table>
-			</div>
+						{% endif %}
+					</tr>
+					</thead>
+					<tbody>
+						<td rowspan="100">{{ df_key}}</td>
+						{% for index, row in df_value.iterrows() %}
+							<tr>
+								{% for col in df_value.columns %}
+									<td>{{ row[col] }}</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					</tbody>
+			{% endfor %}
+			</table>
+		</div>
 		{% endif %}
 
-	{% if spedycyjne_informacje|length != 0 %}
+		{% if spedycyjne_informacje|length != 0 %}
 		<div class="table_spedycyjna">
 			<h2 style="display: block;">Spedycja</h2>
 			<table class="basic-table">
@@ -150,8 +209,8 @@
 				</tbody>
 			</table>
 		</div>
-	{% endif %}
 	
+		{% endif %}
 	</div>        
 	
 </body>

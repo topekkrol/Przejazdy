@@ -11,7 +11,7 @@ def sortowanie(sortowanie_lista):
         for trasy in sortowanie_lista:
             if trasy['km'] == y:
                 lista8.append(trasy)
-        
+
         return (lista8)
     except:
         return None

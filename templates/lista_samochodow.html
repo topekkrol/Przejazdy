@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonogram dostaw</title>
+    <style>
+	   .basic-table {
+            border: 1px solid black;
+            /*border-collapse: collapse; */
+            width: 80%; 
+        }
+		.centered-container {
+        display: flex; /* Użyjemy flexbox do wyśrodkowania */
+        justify-content: center; /* Wyśrodkowanie w poziomie */
+        align-items: center; /* Wyśrodkowanie w pionie */
+    	}
+       h1 {
+    	    display: block;
+    	    text-align: center;
+    	}
+	   table {
+            font-size: 10px;  
+            table-layout: fixed; 
+			
+        }		
+       th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+			font-size: 14px;
+        }
+        th {
+            background-color: #d8eeee;
+            font-size: 16px;
+        } 
+        .basic-table {
+            border: 1px solid black;
+            /*border-collapse: collapse; */
+            width: 80%; 
+        }
+        .basic-table th, .basic-table td {
+            border: 1px solid black;
+            /*padding: 10%;*/
+            text-align: center;
+        }
+        .basic-table th {
+            background-color: #62b6cb;
+        }
+        .basic-table tr:nth-child(even) {
+            background-color: #bee9e8;
+        }
+		.container {
+	      max-width: 100%;
+	      margin: 0;
+	      padding: 1px;
+	      background-color: #d8eeee;
+	  }
+		.umiejscowienie_srodka {
+		  display: flex;
+		  flex-wrap: wrap;
+		  flex-direction: column;
+		  justify-content: start;
+		  align-items: baseline;
+		  align-content: center;
+		  text-align: center;
+		  width: 900px;
+		  margin: auto; 
+		}
+		@media screen and (max-width: 999px) {
+
+			.basic-table {
+            width: 500px; 
+			margin: 0 auto;
+
+        	}
+			.umiejscowienie_srodka{
+            width: 500px;
+			margin-bottom: 10%; 
+			text-align: center;
+        	}
+		}
+    </style>
+</head>
+<header>
+	<div class="container">
+		<a href="/">
+			<img height="100px", width="100px" src="/static/domek.png" alt="Powrót do strony głównej" style="background-color: transparent;">
+		</a>
+	</div>
+</header>
+<body>
+	<div class="centered-container">
+		<h1>Flota samochodów</h1>
+	</div>
+	<div class="umiejscowienie_srodka">
+		<table class="basic-table">
+			<thead>
+				<tr>					
+					<th>Numer rejestracyjny</th>
+					<th>Ładowność palet</th>
+                    <th>Ładowność wagowa</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for pojazd in flota %}
+					<tr height="100px">
+						<td style="font-weight: bold;">{{ pojazd }}</td>
+						<td>{{ flota[pojazd][0] }}</td>
+                        <td>{{ flota[pojazd][1]}} kg</td>
+                        
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	
+</body>
+</html>

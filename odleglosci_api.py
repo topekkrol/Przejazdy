@@ -1,12 +1,12 @@
 import requests
 import time
-
-def get_distance(lat1,lon1,lat2,lon2):
-  time.sleep(5) # ustawione dla umożliwienia wykonania sprawdzenia API, datmowa wersja ma ograniczenia.
+from hasla import api_key_graphhopper, api_key_openweather
+def get_distance(lat1,lon1,lat2='50.040150',lon2='21.979790'):
+  time.sleep(5) # ustawione dla umożliwienia wykonania sprawdzenia API, darmowa wersja ma ograniczenia.
   url = "https://graphhopper.com/api/1/route"
 
   query = {
-    "key": "f031c477-1577-4fae-93ed-04c652232e71"
+    "key": api_key_graphhopper
   }
 
   payload = {
@@ -42,17 +42,16 @@ def get_distance(lat1,lon1,lat2,lon2):
 
   headers = {"Content-Type": "application/json"}
 
-  print(requests.post(url,payload,headers,query))
   response = requests.post(url, json=payload, headers=headers, params=query)
 
   data = response.json()
   try:
     return (data['paths'][0]['distance']/1000)
   except:
-    print(50,lat1,lon1,lat2,lon2,data)
     return 999 # jezeli nie ma odleglosci zwraca abstrakcyjne 999 jako maksymalan odleglosc
+
 def get_location(miasto):
-    url = f'http://api.openweathermap.org/geo/1.0/direct?q={miasto}&limit=5&appid=b0e5051003b7ba1a269ffb5101b421ff'
+    url = f'http://api.openweathermap.org/geo/1.0/direct?q={miasto}&limit=5&appid={api_key_openweather}'
 
     ddane = requests.get(url)
 
@@ -62,5 +61,4 @@ def get_location(miasto):
       lon = (dane[0]['lon'])
       dystans = get_distance(lat,lon)
       return dystans
-
-
+    

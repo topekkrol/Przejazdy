@@ -4,78 +4,104 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App</title>
+    <title>test</title>
     <style>
-        .container {
-            width: 1%;
-            height: 10%;
-            background-color: #89CFF0;
+        body {
+            background-color:#d8eeee;
+            color: #598392;
+        }
+        h1{
+            color: #ffbd5b;
+            font-weight: bold;
+        }
+        a {
+            color:#598392;
+            text-decoration:none;
+            display:inline-block;
+            margin: 3px;
+            font-size: 16px;
+        }
+        /* Zmiana stylu ramki dla zaznaczonego elementu */
+        a:focus {
+            outline: 0px;
+            display: wrap;
+            color: #ffbd5b;
+            font-size: 17px;
+            font-weight: bold;
+
+            /* Możesz dostosować kolor, szerokość i inne właściwości ramki według swoich preferencji */
         }
 
-        select {
-            width: 20%;
-            height: 100%;
+        .test {
+            flex-wrap: wrap;
+		    flex-direction: column;
+            width: 400px;
+            height: 400px;
             border: none;
-            appearance: none;
-            background-color: #fff;
+            background-color: #eff6e0;
             overflow: hidden;
-        }
-        select option {
-            background-color: #fff;
+            align-content: center;
+            margin: auto;
+            text-align: center;
         }
 
-        select option:checked {
-            background-color: #fff;
-        }
     </style>
 </head>
 <body>
+    <div class="test">
     <h1>Dzień dobry</h1>
-    <h2>Please choose an option:</h2>
-    <form action="{{ url_for('handle_input') }}" method="post" id="myForm">
-        <select name="choice" id="choice" size=10 required>
-            <option value="1" selected>Podział towaru na trasy</option>
-            <option value="2">Koniec</option>
-            <!-- Dodaj więcej opcji tutaj -->
-        </select>
-    </form>
+    <h2>Możliwe opcje:</h2>
+        <form >
+            <a height="0px" href="/"></a>
+            <a href="/trasy_do_realizacji">Podzial towaru na trasy</a> <br>
+            <a href="/harmonogram_dostaw">Harmonogram dostaw</a> <br>
+            <a href="/lista_pojazdow">Lista Pojazdow</a><br>
+            <a href="/dokumentacja">Dokumentacja [Github]</a><br>
+            <a href="/graf" target="_blank">Graficzne przedstawienie procesu [Figma]</a><br>
 
+        </form>
+    </div>
     <script>
-        window.onload = function() {
-            const select = document.getElementById("choice");
-
-            // Ustawienie fokusu na elemencie select po załadowaniu strony
-            select.focus();
-
-            select.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    document.getElementById("myForm").submit();
-                }
-            });
-
-            select.addEventListener("dblclick", function(event) {
-                event.preventDefault();
-                document.getElementById("myForm").submit();
-            });
-
-            select.addEventListener("focus", function() {
-                select.addEventListener("keydown", handleArrowKeys);
-            });
-
-            function handleArrowKeys(event) {
-                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    event.preventDefault();
-                    const selectedIndex = select.selectedIndex;
-
-                    if (event.key === "ArrowUp" && selectedIndex > 0) {
-                        select.selectedIndex = selectedIndex - 1;
-                    } else if (event.key === "ArrowDown" && selectedIndex < select.options.length - 1) {
-                        select.selectedIndex = selectedIndex + 1;
-                    }
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Zaznaczenie pierwszego hiperłącza po załadowaniu strony
+            zaznaczPierwszyHiperlacze();
+        
+            // Dodanie obsługi poruszania się po liście za pomocą strzałek
+            var hiperlacza = document.querySelectorAll('a');
+            for (var i = 0; i < hiperlacza.length; i++) {
+                hiperlacza[i].addEventListener('keydown', obsluzKlawisze);
             }
-        };
-    </script>
+        });
+        
+        function zaznaczPierwszyHiperlacze() {
+            var pierwszyHiperlacze = document.querySelector('a');
+        
+            if (pierwszyHiperlacze) {
+                pierwszyHiperlacze.focus(); // Ustawienie fokusu na pierwszym hiperłączu
+            }
+        }
+        
+        function obsluzKlawisze(event) {
+            var obecneHiperlacze = event.target;
+            var wszystkieHiperlacza = Array.from(document.querySelectorAll('a'));
+            var index = wszystkieHiperlacza.indexOf(obecneHiperlacze);
+        
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (index > 0) {
+                        wszystkieHiperlacza[index - 1].focus();
+                    }
+                    event.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    if (index < wszystkieHiperlacza.length - 1) {
+                        wszystkieHiperlacza[index + 1].focus();
+                    }
+                    event.preventDefault();
+                    break;
+            }
+        }
+        </script>
+        
 </body>
 </html>
